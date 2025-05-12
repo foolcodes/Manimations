@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+:root {
+  --secondary-foreground: hsl(270, 30%, 83%);
+  --primary: hsl(332 100% 32%);
+}
+
+.text-secondary-foreground {
+  color: var(--secondary-foreground);
+}
+
+.primary {
+  color: var(--primary);
+}
+
+@font-face {
+  font-family: "Heading";
+  src: url("/real_miami/RealMiami.ttf") format("truetype");
+}
