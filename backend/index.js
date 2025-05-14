@@ -6,7 +6,6 @@ import path from "path";
 import { exec } from "child_process";
 import cors from "cors";
 dotenv.config();
-
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -33,6 +32,7 @@ const cleanCodeResponse = (response) => {
 };
 
 const manimCode = async (req, res) => {
+  console.log("Received request:", req.body);
   try {
     const userPrompt = req.body.prompt;
 
@@ -87,7 +87,7 @@ Return just the Python code and nothing else.`
     //  Manim script
     const outputFileName = `output_${timestamp}`;
 
-    const renderCommand = `venv/bin/manim ${filePath} MyScene -qm -o ${outputFileName} --media_dir ./videos/manim_${timestamp}`;
+    const renderCommand = `manim ${filePath} MyScene -qm -o ${outputFileName} --media_dir ./videos/manim_${timestamp}`;
 
     exec(renderCommand, (err, stdout, stderr) => {
       if (err) {

@@ -4,7 +4,7 @@ import ChatInitialPrompts from "./components/ChatInitialPrompts";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import MessageChat from "./components/MessageChat";
-import sendPrompt from "./api/sendPrompt.js";
+import sendPrompt from "./api/sendPrompt.ts";
 
 interface Message {
   text: string;
