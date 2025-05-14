@@ -2,3 +2,7 @@ node_modules
 videos
 generated_scripts
 .env
+*.mp4
+*.media
+__pycache__/
+*.log

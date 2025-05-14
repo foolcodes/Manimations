@@ -1,36 +1,35 @@
-# Base image with Node.js and Python (needed for Manim)
-FROM python:3.10-slim
+# Start from the community Manim image
+FROM manimcommunity/manim:latest
 
-# Install Node.js, FFmpeg, and other dependencies required for Manim
+# Install Node.js and npm
 RUN apt-get update && \
-    apt-get install -y curl ffmpeg git build-essential libcairo2-dev libpango1.0-dev \
-    libjpeg-dev libgif-dev librsvg2-dev pkg-config libffi-dev texlive-latex-base \
-    texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra && \
+    apt-get install -y curl && \
     curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g npm && \
-    apt-get clean
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Manim with all dependencies
-RUN pip install --no-cache-dir manim
-
-# Create working directory
+# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json first for better caching
-COPY package*.json ./
+# Copy package.json and package-lock.json
+COPY ./backend/package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm ci --only=production
 
-# Copy the rest of the application code
-COPY . .
+# Copy backend code
+COPY ./backend .
 
-# Create necessary directories for Manim output
+# Create necessary directories
 RUN mkdir -p generated_scripts videos
 
-# Expose port
+# Set environment variables
+ENV PORT=5000
+ENV NODE_ENV=production
+
+# Expose the port
 EXPOSE 5000
 
-# Start server
+# Start the app
 CMD ["node", "index.js"]
