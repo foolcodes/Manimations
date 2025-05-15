@@ -1,6 +1,9 @@
 # Start from the community Manim image
 FROM manimcommunity/manim:latest
 
+# Switch to root for installation tasks
+USER root
+
 # Install Node.js and npm
 RUN apt-get update && \
     apt-get install -y curl && \
@@ -13,16 +16,17 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Copy package.json and package-lock.json
-COPY ./backend/package*.json ./
+COPY ./package*.json ./
 
 # Install dependencies
 RUN npm ci --only=production
 
 # Copy backend code
-COPY ./backend .
+COPY . .
 
-# Create necessary directories
-RUN mkdir -p generated_scripts videos
+# Create necessary directories and ensure proper permissions
+RUN mkdir -p generated_scripts videos && \
+    chmod -R 777 generated_scripts videos
 
 # Set environment variables
 ENV PORT=5000

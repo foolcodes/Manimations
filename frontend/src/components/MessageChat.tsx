@@ -53,7 +53,7 @@ const MessageChat = ({ message }: MessageProps) => {
                 onError={(e) => console.error("Video load error:", e)}
               >
                 <source
-                  src={`http://localhost:5000${message.videoUrl}`}
+                  src={`https://manimations-production-d97f.up.railway.app${message.videoUrl}`}
                   type="video/mp4"
                 />
                 Your browser does not support the video tag.

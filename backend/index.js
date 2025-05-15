@@ -87,7 +87,8 @@ Return just the Python code and nothing else.`
     //  Manim script
     const outputFileName = `output_${timestamp}`;
 
-    const renderCommand = `manim ${filePath} MyScene -qm -o ${outputFileName} --media_dir ./videos/manim_${timestamp}`;
+    // Changed the render command to output directly to the videos directory structure that matches the URL path
+    const renderCommand = `manim ${filePath} MyScene -qm -o ${outputFileName} --media_dir ./videos`;
 
     exec(renderCommand, (err, stdout, stderr) => {
       if (err) {
@@ -102,7 +103,20 @@ Return just the Python code and nothing else.`
       console.log("Manim output:", stdout);
       const videoFilename = `${outputFileName}.mp4`;
 
-      const videoUrl = `/videos/manim_${timestamp}/videos/manim_${timestamp}/720p30/${videoFilename}`;
+      // Update the video URL path to match the actual output directory structure
+      const videoUrl = `/videos/videos/manim_${timestamp}/720p30/${videoFilename}`;
+
+      // Log the actual file path for debugging
+      const actualVideoPath = path.join(
+        process.cwd(),
+        "videos",
+        "videos",
+        "manim_" + timestamp,
+        "720p30",
+        videoFilename
+      );
+      console.log("Looking for video at:", actualVideoPath);
+      console.log("File exists:", fs.existsSync(actualVideoPath));
 
       const responseText = `Here's the result.`;
 
@@ -126,6 +140,46 @@ Return just the Python code and nothing else.`
 app.post("/api/manim", manimCode);
 app.get("/app/manim", (req, res) => {
   res.status(200).json("Manim API is running");
+});
+
+// Add a debugging endpoint to check directory structure
+app.get("/debug/files", (req, res) => {
+  try {
+    // Check if videos directory exists
+    const videosDir = path.join(process.cwd(), "videos");
+    const videosDirExists = fs.existsSync(videosDir);
+
+    // Get subdirectories in videos
+    let videoSubdirs = [];
+    if (videosDirExists) {
+      videoSubdirs = fs.readdirSync(videosDir);
+    }
+
+    // Try to get the structure one level deeper
+    let deeperStructure = {};
+    for (const subdir of videoSubdirs) {
+      const fullPath = path.join(videosDir, subdir);
+      if (fs.statSync(fullPath).isDirectory()) {
+        try {
+          deeperStructure[subdir] = fs.readdirSync(fullPath);
+        } catch (err) {
+          deeperStructure[subdir] = `Error: ${err.message}`;
+        }
+      }
+    }
+
+    res.json({
+      cwd: process.cwd(),
+      videosDirectoryExists: videosDirExists,
+      videoSubdirectories: videoSubdirs,
+      deeperStructure: deeperStructure,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "Error reading directory structure",
+      details: error.message,
+    });
+  }
 });
 
 const PORT = process.env.PORT || 5000;
